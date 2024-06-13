@@ -1,6 +1,6 @@
 import streamlit as st
 from langchain import PromptTemplate
-from langchain_openai import OpenAI
+from langchain_groq import ChatGroq
 
 
 template = """\
@@ -45,10 +45,10 @@ prompt = PromptTemplate(
 
 
 #LLM and key loading function
-def load_LLM(openai_api_key):
+def load_LLM(groq_api_key):
     """Logic for loading the chain you want to use should go here."""
-    # Make sure your openai_api_key is set as an environment variable
-    llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
+    # Make sure your groq_api_key is set as an environment variable
+    llm = OpenAI(temperature=0, api_key=groq_api_key, model="llama3-70b-8192")
     return llm
 
 
@@ -73,13 +73,13 @@ with col2:
 
 
 #Input OpenAI API Key
-st.markdown("## Enter Your OpenAI API Key")
+st.markdown("## Enter Your Groq API Key")
 
-def get_openai_api_key():
-    input_text = st.text_input(label="OpenAI API Key ",  placeholder="Ex: sk-2twmA8tfCb8un4...", key="openai_api_key_input", type="password")
+def get_groq_api_key():
+    input_text = st.text_input(label="OpenAI API Key ",  placeholder="Ex: gsk_2twmA8tfCb8un4...", key="groq_api_key_input", type="password")
     return input_text
 
-openai_api_key = get_openai_api_key()
+groq_api_key = get_groq_api_key()
 
 
 # Input
@@ -100,18 +100,18 @@ if len(review_input.split(" ")) > 700:
 st.markdown("### Key Data Extracted:")
 
 if review_input:
-    if not openai_api_key:
-        st.warning('Please insert OpenAI API Key. \
-            Instructions [here](https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key)', 
+    if not groq_api_key:
+        st.warning('Please insert Groq API Key. \
+            Instructions [here](https://console.groq.com/keys)', 
             icon="⚠️")
         st.stop()
 
-    llm = load_LLM(openai_api_key=openai_api_key)
+    llm = load_LLM(groq_api_key=groq_api_key)
 
     prompt_with_review = prompt.format(
         review=review_input
     )
 
-    key_data_extraction = llm(prompt_with_review)
+    key_data_extraction = llm.invoke(prompt_with_review)
 
     st.write(key_data_extraction)
